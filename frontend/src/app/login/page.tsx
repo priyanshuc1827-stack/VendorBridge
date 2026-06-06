@@ -46,7 +46,7 @@ export default function LoginPage() {
         if (data.user.role === 'admin') {
           router.push('/admin/logs');
         } else if (data.user.role === 'officer') {
-          router.push('/officer');
+          window.location.href = '/officer';
         } else if (data.user.role === 'vendor') {
           router.push('/vendor/rfqs');
         } else if (data.user.role === 'manager') {
@@ -74,6 +74,10 @@ export default function LoginPage() {
         const mockUser: any = { id: 4, name: "System Admin", email: enteredEmail, role: "admin", vendor_id: null };
         loginStore(mockUser, "mock_token_admin");
         window.location.href = '/admin/logs';
+      } else if (enteredEmail === 'officer@vendorbridge.com') {
+        const mockUser: any = { id: 1, name: "Procurement Officer", email: enteredEmail, role: "officer", vendor_id: null };
+        loginStore(mockUser, "mock_token_officer");
+        window.location.href = '/officer';
       } else {
         // Default fallback for officer or any test inputs
         const mockUser: any = { id: 1, name: "Procurement Officer", email: enteredEmail, role: "officer", vendor_id: null };
