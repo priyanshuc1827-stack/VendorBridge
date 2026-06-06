@@ -10,16 +10,17 @@ import { authenticateToken, requireRole } from '../middleware/auth';
 
 const router = Router();
 
+// 🔒 SECURE: Only logged-in users can view vendors
 router.get('/', authenticateToken, getVendors);
 router.get('/:id', authenticateToken, getVendorById);
 
+// 🌐 PUBLIC: Removed token guards so new vendors can register themselves
 router.post(
   '/',
-  authenticateToken,
-  requireRole(['admin', 'officer']),
   createVendor
 );
 
+// 🔒 SECURE: Only Admins or Officers can modify vendor details
 router.put(
   '/:id',
   authenticateToken,
@@ -27,6 +28,7 @@ router.put(
   updateVendor
 );
 
+// 🔒 SECURE: Only Admins can drop/delete vendor profiles
 router.delete(
   '/:id',
   authenticateToken,

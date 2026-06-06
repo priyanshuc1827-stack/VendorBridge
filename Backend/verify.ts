@@ -1,3 +1,4 @@
+process.env.IN_VERIFY_TEST = 'true';
 import app from './src/server';
 import http from 'http';
 import { execSync } from 'child_process';

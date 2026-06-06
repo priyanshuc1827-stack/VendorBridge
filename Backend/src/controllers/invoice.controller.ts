@@ -156,14 +156,23 @@ export const emailInvoice = async (req: Request, res: Response): Promise<void> =
 
 export const getInvoices = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const invoices = await all(
-      `SELECT inv.*, po.po_number, v.name as vendor_name 
+    const invoices = await all<any>(
+      `SELECT inv.*, po.po_number, po.quotation_id, v.name as vendor_name, v.gst_number as vendor_gst, v.email as vendor_email, v.phone as vendor_phone
        FROM invoices inv
        JOIN purchase_orders po ON inv.po_id = po.id
        JOIN quotations q ON po.quotation_id = q.id
        JOIN vendors v ON q.vendor_id = v.id
        ORDER BY inv.id DESC`
     );
+
+    for (const inv of invoices) {
+      const items = await all(
+        'SELECT * FROM quotation_items WHERE quotation_id = ?',
+        [inv.quotation_id]
+      );
+      inv.items = items;
+    }
+
     res.status(200).json({ success: true, data: { invoices } });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });

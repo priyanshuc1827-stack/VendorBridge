@@ -6,7 +6,7 @@ const router = Router();
 
 router.get('/', authenticateToken, getRfqs);
 router.get('/:id', authenticateToken, getRfqById);
-router.get('/:id/compare', authenticateToken, requireRole(['admin', 'officer']), compareQuotations);
+router.get('/:id/compare', authenticateToken, requireRole(['admin', 'officer', 'manager']), compareQuotations);
 
 router.post(
   '/',
