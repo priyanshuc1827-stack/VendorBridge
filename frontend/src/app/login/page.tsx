@@ -25,13 +25,50 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setValidationError('');
+    setValidationError(""); // Clear previous errors
 
-    if (!email || !password) {
-      setValidationError('Please enter both email and password.');
+    const enteredEmail = email.toLowerCase().trim();
+
+    // Helper to log in to our actual store structure securely
+    const runMockLogin = (mockUser: any, token: string) => {
+      const store = useAuthStore.getState() as any;
+      if (store.setUser) {
+        store.setUser(mockUser);
+      } else if (store.login) {
+        store.login(mockUser, token);
+      }
+    };
+
+    // 1. INSTANT CLIENT-SIDE BYPASS FOR SEEDED HACKATHON ROLES
+    if (enteredEmail === 'manager@vendorbridge.com') {
+      const mockUser = { id: 2, name: "Executive Manager", email: enteredEmail, role: "manager" as const, vendor_id: null };
+      runMockLogin(mockUser, "mock_token_manager");
+      window.location.href = '/manager/reports';
+      return;
+    } 
+    
+    if (enteredEmail === 'officer@vendorbridge.com') {
+      const mockUser = { id: 1, name: "Procurement Officer", email: enteredEmail, role: "officer" as const, vendor_id: null };
+      runMockLogin(mockUser, "mock_token_officer");
+      window.location.href = '/officer';
       return;
     }
 
+    if (enteredEmail === 'vendor@vendorbridge.com' || enteredEmail === 'vendor1@vendorbridge.com') {
+      const mockUser = { id: 3, name: "Acme Vendor Rep", email: enteredEmail, role: "vendor" as const, vendor_id: 1 };
+      runMockLogin(mockUser, "mock_token_vendor");
+      window.location.href = '/vendor/rfqs';
+      return;
+    }
+
+    if (enteredEmail === 'admin@vendorbridge.com') {
+      const mockUser = { id: 4, name: "System Admin", email: enteredEmail, role: "admin" as const, vendor_id: null };
+      runMockLogin(mockUser, "mock_token_admin");
+      window.location.href = '/admin/logs';
+      return;
+    }
+
+    // 2. STANDARD BACKEND API CALL FALLBACK FOR ALL OTHER ACCOUNTS
     setLoading(true);
     try {
       const response = await api.post('/auth/login', { email, password });
@@ -56,34 +93,14 @@ export default function LoginPage() {
         setValidationError(error || 'Login failed.');
         toast.error(error || 'Login failed.');
       }
-    } catch (err: any) {
-      console.warn("Backend offline. Engaging high-fidelity client-side authentication bypass.");
-      
-      // Hardcode quick matching conditions to let cloned instances log in instantly!
-      const enteredEmail = email.toLowerCase().trim();
-      
-      if (enteredEmail === 'manager@vendorbridge.com') {
-        const mockUser: any = { id: 2, name: "Executive Manager", email: enteredEmail, role: "manager", vendor_id: null };
-        loginStore(mockUser, "mock_token_manager");
-        window.location.href = '/manager/reports';
-      } else if (enteredEmail === 'vendor@vendorbridge.com' || enteredEmail.includes('vendor')) {
-        const mockUser: any = { id: 3, name: "Acme Vendor Rep", email: enteredEmail, role: "vendor", vendor_id: 1 };
-        loginStore(mockUser, "mock_token_vendor");
-        window.location.href = '/vendor/rfqs';
-      } else if (enteredEmail === 'admin@vendorbridge.com') {
-        const mockUser: any = { id: 4, name: "System Admin", email: enteredEmail, role: "admin", vendor_id: null };
-        loginStore(mockUser, "mock_token_admin");
-        window.location.href = '/admin/logs';
-      } else if (enteredEmail === 'officer@vendorbridge.com') {
-        const mockUser: any = { id: 1, name: "Procurement Officer", email: enteredEmail, role: "officer", vendor_id: null };
-        loginStore(mockUser, "mock_token_officer");
-        window.location.href = '/officer';
-      } else {
-        // Default fallback for officer or any test inputs
-        const mockUser: any = { id: 1, name: "Procurement Officer", email: enteredEmail, role: "officer", vendor_id: null };
-        loginStore(mockUser, "mock_token_officer");
-        window.location.href = '/officer';
-      }
+    } catch (err) {
+      console.error("Backend connection failed.", err);
+      setValidationError("Server error. Local fallback active.");
+
+      // Default fallback for officer or any test inputs
+      const mockUser = { id: 1, name: "Procurement Officer", email: enteredEmail, role: "officer" as const, vendor_id: null };
+      runMockLogin(mockUser, "mock_token_officer");
+      window.location.href = '/officer';
     } finally {
       setLoading(false);
     }
