@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Activity, ArrowLeft, Building2, Globe, Mail, Phone, Lock, FileText, ArrowRight, UserCheck } from 'lucide-react';
@@ -10,6 +11,13 @@ type RegisterRole = 'vendor' | 'officer' | 'manager';
 
 export default function SignupPage() {
   const router = useRouter();
+
+  React.useEffect(() => {
+    // Clear lingering sessions right when the auth forms load
+    const store = useAuthStore.getState();
+    if (store.logout) store.logout();
+    localStorage.clear(); 
+  }, []);
 
   // Selected registration role
   const [role, setRole] = useState<RegisterRole>('vendor');

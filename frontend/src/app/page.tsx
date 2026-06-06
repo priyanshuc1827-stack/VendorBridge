@@ -1,28 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
 import { Activity, ShieldCheck, UserPlus, LogIn } from 'lucide-react';
 
 export default function IndexPage() {
-  const router = useRouter();
-  const { role } = useAuthStore();
-
-  React.useEffect(() => {
-    if (role === 'manager') {
-      window.location.href = '/manager/reports';
-      return;
-    }
-    if (typeof window !== 'undefined') {
-      const match = document.cookie.match(/(?:^|; )role=([^;]*)/);
-      const cookieRole = match ? decodeURIComponent(match[1]) : null;
-      if (cookieRole === 'manager') {
-        window.location.href = '/manager/reports';
-      }
-    }
-  }, [role]);
-
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
       {/* Background Decorative Mesh Grids */}
@@ -58,23 +39,23 @@ export default function IndexPage() {
 
         {/* Action CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <button
+          <a
             id="signin-btn"
-            onClick={() => router.push('/login')}
+            href="/login"
             className="group flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-100 transition-all hover:scale-[1.02]"
           >
             <LogIn className="h-4 w-4 text-emerald-400" />
             <span>Sign In to Workspace</span>
-          </button>
+          </a>
 
-          <button
+          <a
             id="signup-btn"
-            onClick={() => router.push('/signup')}
+            href="/signup"
             className="group flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg hover:scale-[1.02]"
           >
             <UserPlus className="h-4 w-4" />
             <span>Start Now / Onboard Vendor</span>
-          </button>
+          </a>
         </div>
 
         {/* System status logs indicator */}
